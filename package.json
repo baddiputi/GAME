@@ -3,15 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx vite",
-    "build": "npx vite build",
-    "preview": "npx vite preview"
+    "dev": "python3 -m http.server 8080"
   },
   "dependencies": {
     "cannon-es": "^0.20.0",
     "three": "^0.179.1"
-  },
-  "devDependencies": {
-    "vite": "^5.0.0"
   }
 }

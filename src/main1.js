@@ -61,22 +61,22 @@ scene.add(directionalLight);
 
 // --- Textures ---
 const textureLoader = new THREE.TextureLoader();
-const roadTexture = textureLoader.load('textures/road.jpg');
+const roadTexture = textureLoader.load('/public/textures/road.jpg');
 roadTexture.wrapS = roadTexture.wrapT = THREE.RepeatWrapping;
 roadTexture.repeat.set(2, 48);
-const grassTexture = textureLoader.load('textures/grass.jpg');
+const grassTexture = textureLoader.load('/public/textures/grass.jpg');
 grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
 grassTexture.repeat.set(48, 48);
-const buildingTexture = textureLoader.load('textures/building8.jpg');
+const buildingTexture = textureLoader.load('/public/textures/building8.jpg');
 buildingTexture.wrapS = buildingTexture.wrapT = THREE.RepeatWrapping;
 buildingTexture.repeat.set(1, 1);
-const pavementTexture = textureLoader.load('textures/pavement.jpg');
+const pavementTexture = textureLoader.load('/public/textures/pavement.jpg');
 pavementTexture.wrapS = pavementTexture.wrapT = THREE.RepeatWrapping;
 pavementTexture.repeat.set(1, 48);
 
 // Load movie poster texture
-const posterTexture = textureLoader.load('textures/devara_poster.jpg');
-const hodPosterTexture = textureLoader.load('posters_and_images/HOD.jpg');
+const posterTexture = textureLoader.load('/public/textures/devara_poster.jpg');
+const hodPosterTexture = textureLoader.load('/public/posters_and_images/HOD.jpg');
 
 // --- City parameters ---
 const blockSpacing = 180;
@@ -214,19 +214,19 @@ for (let i = -wallOffset + postSpacing; i < wallOffset; i += postSpacing) {
 
 // Traffic sign pictures on compound walls
 const trafficSignPaths = [
-  'posters_and_images/traffic_sign_1.jpg',
-  'posters_and_images/traffic_sign_2.png',
-  'posters_and_images/traffic_sign_3.png',
-  'posters_and_images/safety_poster_1.png',
-  'posters_and_images/safety_poster_2.jpg',
-  'posters_and_images/safety_poster_3.png',
-  'posters_and_images/safety_poster_4.png',
-  'posters_and_images/safety_poster_5.png',
-  'posters_and_images/road_safety_1.png',
-  'posters_and_images/road_safety_2.png',
-  'posters_and_images/road_safety_3.png',
-  'posters_and_images/road_safety_4.png',
-  'posters_and_images/road_safety_5.png'
+  '/public/posters_and_images/traffic_sign_1.jpg',
+  '/public/posters_and_images/traffic_sign_2.png',
+  '/public/posters_and_images/traffic_sign_3.png',
+  '/public/posters_and_images/safety_poster_1.png',
+  '/public/posters_and_images/safety_poster_2.jpg',
+  '/public/posters_and_images/safety_poster_3.png',
+  '/public/posters_and_images/safety_poster_4.png',
+  '/public/posters_and_images/safety_poster_5.png',
+  '/public/posters_and_images/road_safety_1.png',
+  '/public/posters_and_images/road_safety_2.png',
+  '/public/posters_and_images/road_safety_3.png',
+  '/public/posters_and_images/road_safety_4.png',
+  '/public/posters_and_images/road_safety_5.png'
 ];
 
 const trafficTextures = trafficSignPaths.map(path => {
@@ -634,7 +634,7 @@ class Pedestrian {
 
     // Then try to load the fancy model (optional enhancement)
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('textures/men.glb', (gltf) => {
+    gltfLoader.load('/public/textures/men.glb', (gltf) => {
       // Remove fallback geometry
       while (this.mesh.children.length > 0) {
         const child = this.mesh.children[0];
@@ -1205,7 +1205,7 @@ const loader = new GLTFLoader();
 const startX = 0; // Start at city center
 const startZ = 0;
 
-loader.load('textures/car.glb', function (gltf) {
+loader.load('/public/textures/car.glb', function (gltf) {
   car = gltf.scene;
   car.scale.set(10, 10, 10);
   car.position.set(startX, 1, startZ);
@@ -1236,7 +1236,7 @@ let carVelocity = new THREE.Vector3(0, 0, 0);
 const acceleration = 0.05;
 const maxSpeed = 1.5;
 const rotationSpeed = 0.03;
-const collisionSound = new Audio('textures/collision.mp3');
+const collisionSound = new Audio('/public/textures/collision.mp3');
 
 // Kill Mode state
 let score = 0;

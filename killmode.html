@@ -4,12 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Street Racing Training</title>
+  <title>Kill Mode - Street Racing Game</title>
   <script type="importmap">
     {
       "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js",
         "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/loaders/GLTFLoader.js",
+        "three/examples/jsm/loaders/FontLoader.js": "https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/loaders/FontLoader.js",
+        "three/examples/jsm/geometries/TextGeometry.js": "https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/geometries/TextGeometry.js",
         "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/",
         "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
       }
@@ -20,32 +22,12 @@
       margin: 0;
       overflow: hidden;
     }
-
-    #coins {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-      font-size: 24px;
-      font-family: sans-serif;
-    }
   </style>
 </head>
 
 <body>
-  <div id="coins">Coins: 0</div>
-
-  <!-- Training Mode HUD -->
-  <div id="training-hud">
-    <div id="mission-title"></div>
-    <div id="mission-instructions"></div>
-    <div id="mission-timer"></div>
-    <div id="mission-feedback"></div>
-    <div id="mission-progress"></div>
-  </div>
-
-  <!-- Load your main.js module -->
-  <script type="module" src="main.js"></script>
+  <!-- Load Kill Mode game logic -->
+  <script type="module" src="./src/main1.js"></script>
 </body>
 
 </html>
