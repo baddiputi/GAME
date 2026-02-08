@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Racing Game: Obey or Perish - Interactive Traffic Safety Education</title>
+    <link rel="stylesheet" href="landing.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Barlow+Condensed:wght@400;700;900&family=Crimson+Pro:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="overlay"></div>
+
+        <div class="content">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <h1 class="game-title">
+                    <span class="title-main">STREET RACING GAME</span>
+                    <span class="title-sub">OBEY OR PERISH</span>
+                </h1>
+                <p class="tagline">An Interactive 3D Traffic Safety Education Platform</p>
+            </div>
+
+            <!-- Project Overview -->
+            <div class="overview-section">
+                <h2 class="section-title">Project Overview</h2>
+                <p class="overview-text">
+                    A cutting-edge web-based driving simulator built with Three.js and WebGL technology,
+                    designed to educate users about traffic rules and safe driving practices through
+                    immersive 3D gameplay and real-world scenarios.
+                </p>
+            </div>
+
+            <!-- Technical Highlights -->
+            <div class="tech-section">
+                <h2 class="section-title">Technical Implementation</h2>
+                <div class="tech-grid">
+                    <div class="tech-card" style="--delay: 0.1s">
+                        <div class="tech-icon">⚡</div>
+                        <h3>Three.js / WebGL</h3>
+                        <p>Real-time 3D rendering with optimized performance for smooth 60 FPS gameplay</p>
+                    </div>
+                    <div class="tech-card" style="--delay: 0.2s">
+                        <div class="tech-icon">🎮</div>
+                        <h3>Physics Engine</h3>
+                        <p>Realistic vehicle dynamics with collision detection and response systems</p>
+                    </div>
+                    <div class="tech-card" style="--delay: 0.3s">
+                        <div class="tech-icon">🏙️</div>
+                        <h3>Procedural City</h3>
+                        <p>Dynamic urban environment with roads, buildings, and traffic infrastructure</p>
+                    </div>
+                    <div class="tech-card" style="--delay: 0.4s">
+                        <div class="tech-icon">🎯</div>
+                        <h3>Interactive Learning</h3>
+                        <p>Mission-based training system with progressive difficulty and feedback</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Educational Features -->
+            <div class="features-section">
+                <h2 class="section-title">Educational Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card" style="--delay: 0.1s">
+                        <div class="feature-number">01</div>
+                        <h3>Traffic Rules Education</h3>
+                        <p>Learn and practice traffic signals, road signs, and right-of-way rules in a safe virtual
+                            environment</p>
+                    </div>
+                    <div class="feature-card" style="--delay: 0.2s">
+                        <div class="feature-number">02</div>
+                        <h3>Real-World Scenarios</h3>
+                        <p>Experience realistic driving situations including intersections, pedestrian crossings, and
+                            parking</p>
+                    </div>
+                    <div class="feature-card" style="--delay: 0.3s">
+                        <div class="feature-number">03</div>
+                        <h3>Safety Awareness</h3>
+                        <p>Visual safety posters and educational content integrated throughout the city environment</p>
+                    </div>
+                    <div class="feature-card" style="--delay: 0.4s">
+                        <div class="feature-number">04</div>
+                        <h3>Skill Development</h3>
+                        <p>Progressive training modules to build confidence and competence in driving fundamentals</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Statement -->
+            <div class="impact-section">
+                <h2 class="section-title">Project Impact</h2>
+                <div class="impact-stats">
+                    <div class="stat-item" style="--delay: 0.1s">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Web-Based</div>
+                        <p>No installation required, accessible from any modern browser</p>
+                    </div>
+                    <div class="stat-item" style="--delay: 0.2s">
+                        <div class="stat-number">3D</div>
+                        <div class="stat-label">Immersive Experience</div>
+                        <p>Realistic environment for effective learning and engagement</p>
+                    </div>
+                    <div class="stat-item" style="--delay: 0.3s">
+                        <div class="stat-number">Safe</div>
+                        <div class="stat-label">Risk-Free Training</div>
+                        <p>Learn from mistakes without real-world consequences</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <button class="demo-btn" onclick="startGame()">
+                    <span class="btn-text">LAUNCH DEMONSTRATION</span>
+                    <span class="btn-arrow">→</span>
+                </button>
+                <button class="demo-btn" onclick="startKillMode()"
+                    style="margin-top: 20px; background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);">
+                    <span class="btn-text">KILL MODE</span>
+                    <span class="btn-arrow">⚡</span>
+                </button>
+                <p class="controls-hint">Interactive Controls: Arrow Keys • Space to Brake</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Built with Three.js (WebGL) • Modern Web Technologies • Educational Purpose</p>
+        </div>
+    </div>
+
+    <script>
+        function startGame() {
+            const btn = document.querySelector('.demo-btn');
+            btn.style.transform = 'scale(0.95)';
+
+            setTimeout(() => {
+                window.location.href = 'game.html';
+            }, 150);
+        }
+
+        function startKillMode() {
+            const btns = document.querySelectorAll('.demo-btn');
+            btns.forEach(btn => btn.style.transform = 'scale(0.95)');
+
+            setTimeout(() => {
+                window.location.href = 'killmode.html';
+            }, 150);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                startGame();
+            }
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.tech-card, .feature-card, .stat-item').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>
