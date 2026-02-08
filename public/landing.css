@@ -17,7 +17,7 @@ body {
 
 .container {
     min-height: 100vh;
-    background-image: url('public/posters_and_images/landing_bg.png');
+    background-image: url('posters_and_images/landing_bg.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
