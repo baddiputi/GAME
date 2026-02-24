@@ -8,5 +8,19 @@
   "dependencies": {
     "cannon-es": "^0.20.0",
     "three": "^0.179.1"
-  }
+  },
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baddiputi/GAME.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/baddiputi/GAME/issues"
+  },
+  "homepage": "https://github.com/baddiputi/GAME#readme"
 }

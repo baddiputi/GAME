@@ -126,6 +126,21 @@
                     <span class="btn-text">KILL MODE</span>
                     <span class="btn-arrow">⚡</span>
                 </button>
+                <button class="demo-btn" onclick="startNPCMode()"
+                    style="margin-top: 20px; background: linear-gradient(135deg, #006994 0%, #003366 100%); box-shadow: 0 15px 45px rgba(0,180,255,0.4);">
+                    <span class="btn-text">NPC TRAFFIC MODE</span>
+                    <span class="btn-arrow">🚗</span>
+                </button>
+                <button class="demo-btn" onclick="startTrafficRulesMode()"
+                    style="margin-top: 20px; background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); box-shadow: 0 15px 45px rgba(0,230,118,0.35);">
+                    <span class="btn-text">TRAFFIC RULES MODE</span>
+                    <span class="btn-arrow">🚦</span>
+                </button>
+                <button class="demo-btn" onclick="startDrivingTestMode()"
+                    style="margin-top: 20px; background: linear-gradient(135deg, #4a0080 0%, #7b00d4 100%); box-shadow: 0 15px 45px rgba(150,0,255,0.4);">
+                    <span class="btn-text">DRIVING TEST MODE</span>
+                    <span class="btn-arrow">🧪</span>
+                </button>
                 <p class="controls-hint">Interactive Controls: Arrow Keys • Space to Brake</p>
             </div>
         </div>
@@ -152,6 +167,24 @@
             setTimeout(() => {
                 window.location.href = 'killmode.html';
             }, 150);
+        }
+
+        function startNPCMode() {
+            const btns = document.querySelectorAll('.demo-btn');
+            btns.forEach(btn => btn.style.transform = 'scale(0.95)');
+            setTimeout(() => { window.location.href = 'npctraffic.html'; }, 150);
+        }
+
+        function startTrafficRulesMode() {
+            const btns = document.querySelectorAll('.demo-btn');
+            btns.forEach(btn => btn.style.transform = 'scale(0.95)');
+            setTimeout(() => { window.location.href = 'main3.html'; }, 150);
+        }
+
+        function startDrivingTestMode() {
+            const btns = document.querySelectorAll('.demo-btn');
+            btns.forEach(btn => btn.style.transform = 'scale(0.95)');
+            setTimeout(() => { window.location.href = 'drivingtest.html'; }, 150);
         }
 
         document.addEventListener('keydown', (e) => {

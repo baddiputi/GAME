@@ -612,9 +612,14 @@ class Pedestrian {
     // Fall/death properties
     this.fallProgress = 0;
     this.fallVelocity = 0;
-    this.horizontalVelocity = null; // For getting thrown by car impact
+    this.fallVelX = 0;   // JS kinematic fall velocity X
+    this.fallVelY = 0;   // JS kinematic fall velocity Y
+    this.fallVelZ = 0;   // JS kinematic fall velocity Z
+    this.rotVelX = 0;   // tumble rotation velocity X
+    this.rotVelZ = 0;   // tumble rotation velocity Z
+    this.horizontalVelocity = null;
     this.rotationVelocityX = 0;
-    this.rotationVelocityY = 0; // Spinning rotation
+    this.rotationVelocityY = 0;
     this.rotationVelocityZ = 0;
     this.deathTime = 0;
     this.fallenBody = false;
@@ -805,17 +810,23 @@ class Pedestrian {
   }
 
   update(deltaTime = 0.016) {
-    if (!this.isAlive) return;
+    // Allow FALLING state to keep running even after isAlive=false
+    // so the ragdoll / JS-fall animation continues to play
+    const isFalling = (this.state === 'FALLING');
 
-    // Update animation mixer if it exists
-    if (this.mixer) {
+    // Always run update for FALLING state even after isAlive=false
+    if (!this.isAlive && !isFalling) return;
+
+    // Only advance mixer when NOT falling (stop animation during fall)
+    if (this.mixer && !isFalling) {
       this.mixer.update(deltaTime);
     }
 
-    this.stateTimer += deltaTime;
-    this.timeSinceDirectionChange += deltaTime;
+    if (!isFalling) {
+      this.stateTimer += deltaTime;
+      this.timeSinceDirectionChange += deltaTime;
+    }
 
-    // State machine
     switch (this.state) {
       case 'WALKING':
         this.handleWalkingState(deltaTime);
@@ -949,154 +960,106 @@ class Pedestrian {
   }
 
   handleFallingState(deltaTime) {
-    // If ragdoll is active, sync visual mesh with physics
-    if (this.ragdollActive && this.torsoBody) {
-      // Copy position from torso physics body
-      this.mesh.position.copy(this.torsoBody.position);
-      this.mesh.position.y -= 0.9; // Adjust for center of mass offset
+    if (this.fallenBody) return;
 
-      // Copy rotation from torso physics body
-      this.mesh.quaternion.copy(this.torsoBody.quaternion);
+    const GRAVITY = -30;   // strong downward pull
 
-      // Check if body has settled (stopped moving)
-      const velocity = this.torsoBody.velocity;
-      const speed = Math.sqrt(
-        velocity.x ** 2 + velocity.y ** 2 + velocity.z ** 2
-      );
+    // The GLB model (men.glb at scale 4,3,4) is ~2 units wide.
+    // When rotated 90° the half-width pushes the geometry below the group
+    // root, so we lift the root by that amount to stay above the road.
+    const BODY_RADIUS = 1.5;   // GLB model half-width when lying on side
+    const SAFETY = 0.2;        // tiny extra buffer to avoid z-fighting
 
-      // Check if body is resting on ground
-      if (speed < 0.5 && this.torsoBody.position.y < 1.5 && !this.fallenBody) {
-        this.fallenBody = true;
-        this.deathTime = Date.now();
+    // Accumulate gravity
+    this.fallVelY += GRAVITY * deltaTime;
 
-        // Reduce damping to help body settle
-        this.torsoBody.linearDamping = 0.9;
-        this.torsoBody.angularDamping = 0.9;
-        if (this.headBody) {
-          this.headBody.linearDamping = 0.9;
-          this.headBody.angularDamping = 0.9;
-        }
-      }
+    // Move the mesh group
+    this.mesh.position.x += this.fallVelX * deltaTime;
+    this.mesh.position.z += this.fallVelZ * deltaTime;
+    this.mesh.position.y += this.fallVelY * deltaTime;
+
+    // Tumble / tip the body – clamp to a sideways-fallen pose
+    this.mesh.rotation.x += this.rotVelX * deltaTime;
+    this.mesh.rotation.z += this.rotVelZ * deltaTime;
+
+    // Cap rotations so body tips over but doesn't keep spinning
+    const MAX_ROT = Math.PI / 2;  // 90 degrees
+    this.mesh.rotation.x = Math.max(-MAX_ROT, Math.min(MAX_ROT, this.mesh.rotation.x));
+    this.mesh.rotation.z = Math.max(-MAX_ROT, Math.min(MAX_ROT, this.mesh.rotation.z));
+
+    // --- Dynamic ground clamp ---
+    // How much the rotation shifts the geometry's lowest point below the
+    // group root:  at 0° → 0 offset;  at 90° → full BODY_RADIUS offset.
+    const tiltX = Math.abs(Math.sin(this.mesh.rotation.x));
+    const tiltZ = Math.abs(Math.sin(this.mesh.rotation.z));
+    const groundY = (Math.max(tiltX, tiltZ) * BODY_RADIUS) + SAFETY;
+
+    // Friction on horizontal slide
+    this.fallVelX *= 0.92;
+    this.fallVelZ *= 0.92;
+
+    // Settle once the group root reaches its dynamic floor –
+    // ONLY when falling downward (fallVelY <= 0) so we don't
+    // snap to the ground immediately on the first frame.
+    if (this.mesh.position.y <= groundY && this.fallVelY <= 0) {
+      this.mesh.position.y = groundY;
+      this.fallVelY = 0;
+      this.fallVelX = 0;
+      this.fallVelZ = 0;
+      this.rotVelX = 0;
+      this.rotVelZ = 0;
+      this.fallenBody = true;
+      this.deathTime = Date.now();
+      console.log('Pedestrian settled on ground at y=', groundY.toFixed(2));
     }
   }
 
   activateRagdoll(carDirection, carVelocity, carPosition) {
-    console.log('activateRagdoll called! carVelocity:', carVelocity, 'CANNON available:', typeof CANNON !== 'undefined');
+    // Guard: don't trigger twice
+    if (this.state === 'FALLING') return;
+
+    console.log('=== PEDESTRIAN HIT === activateRagdoll called, carVelocity:', carVelocity);
 
     this.state = 'FALLING';
     this.speed = 0;
     this.isAlive = false;
-    this.ragdollActive = true;
+    this.ragdollActive = false;
 
     // Stop all animations immediately
     if (this.mixer) {
       this.mixer.stopAllAction();
+      this.mixer.timeScale = 0;
     }
 
-    // Calculate impact direction and force
-    const impactDir = new THREE.Vector3()
-      .subVectors(this.mesh.position, carPosition)
-      .normalize();
+    // Use car's forward direction for throw (not ped-minus-car which can be sideways)
+    // carDirection is car.rotation.y (a Y-axis angle in radians)
+    const carAngle = typeof carDirection === 'number' ? carDirection : 0;
+    const throwDirX = Math.sin(carAngle);
+    const throwDirZ = Math.cos(carAngle);
 
-    const carSpeed = Math.abs(carVelocity);
-    const impactMagnitude = Math.max(carSpeed * 12, 5); // Minimum force of 5
+    // Fixed strong forces — carVelocity is tiny (distance/frame), so use fixed minimums
+    const THROW_SPEED = 18;   // horizontal units/s
+    const UP_SPEED = 12;   // initial upward velocity units/s
+    const TUMBLE_SPEED = 4;   // radians/s
 
-    console.log('Impact calculated - Speed:', carSpeed, 'Magnitude:', impactMagnitude, 'Direction:', impactDir);
+    this.fallVelX = throwDirX * THROW_SPEED;
+    this.fallVelZ = throwDirZ * THROW_SPEED;
+    this.fallVelY = UP_SPEED;
+    this.rotVelX = (Math.random() > 0.5 ? 1 : -1) * TUMBLE_SPEED;
+    this.rotVelZ = (Math.random() - 0.5) * 2;
 
-    // Store impact data
-    this.impactForce = impactMagnitude;
-    this.impactDirection = Math.atan2(impactDir.x, impactDir.z);
+    // Mark so external code can check
+    this.mesh.userData.isFalling = true;
 
-    // Create TORSO physics body (cylindrical)
-    const torsoShape = new CANNON.Cylinder(0.3, 0.3, 1.2, 8);
-    this.torsoBody = new CANNON.Body({
-      mass: 70, // kg - realistic human weight
-      shape: torsoShape,
-      material: bodyMaterial,
-      linearDamping: 0.3, // Air resistance
-      angularDamping: 0.3
-    });
+    console.log('Fall velocities set: X=', this.fallVelX, 'Y=', this.fallVelY, 'Z=', this.fallVelZ);
 
-    // Position torso at character position
-    this.torsoBody.position.set(
-      this.mesh.position.x,
-      this.mesh.position.y + 0.9, // Center of mass
-      this.mesh.position.z
-    );
-
-    // Match character rotation
-    this.torsoBody.quaternion.setFromEuler(0, this.mesh.rotation.y, 0);
-
-    physicsWorld.addBody(this.torsoBody);
-    this.ragdollBodies.push(this.torsoBody);
-
-    // Create HEAD physics body (spherical)
-    const headShape = new CANNON.Sphere(0.18);
-    this.headBody = new CANNON.Body({
-      mass: 5, // kg - realistic head weight
-      shape: headShape,
-      material: bodyMaterial,
-      linearDamping: 0.3,
-      angularDamping: 0.3
-    });
-
-    this.headBody.position.set(
-      this.mesh.position.x,
-      this.mesh.position.y + 1.6, // Above torso
-      this.mesh.position.z
-    );
-
-    physicsWorld.addBody(this.headBody);
-    this.ragdollBodies.push(this.headBody);
-
-    // Create NECK constraint (point-to-point)
-    this.neckConstraint = new CANNON.PointToPointConstraint(
-      this.torsoBody,
-      new CANNON.Vec3(0, 0.6, 0), // Top of torso
-      this.headBody,
-      new CANNON.Vec3(0, -0.18, 0) // Bottom of head
-    );
-    physicsWorld.addConstraint(this.neckConstraint);
-
-    // Apply IMPACT FORCE to torso
-    const impulseForce = new CANNON.Vec3(
-      impactDir.x * impactMagnitude,
-      impactMagnitude * 0.25, // Upward component (body gets thrown up)
-      impactDir.z * impactMagnitude
-    );
-
-    // Apply impulse at impact point (creates rotation)
-    const impactPoint = new CANNON.Vec3(0, -0.3, 0); // Lower torso
-    this.torsoBody.applyImpulse(impulseForce, impactPoint);
-
-    // Add rotational spin based on impact strength
-    const spinIntensity = carSpeed > 0.4 ? 1.5 : 0.8;
-    this.torsoBody.angularVelocity.set(
-      (Math.random() - 0.5) * spinIntensity * 2, // Tumbling
-      (Math.random() - 0.5) * spinIntensity,     // Spinning
-      (Math.random() - 0.5) * spinIntensity * 2  // Rolling
-    );
-
-    // Small impulse to head for realistic neck movement
-    const headImpulse = new CANNON.Vec3(
-      impactDir.x * impactMagnitude * 0.3,
-      impactMagnitude * 0.15,
-      impactDir.z * impactMagnitude * 0.3
-    );
-    this.headBody.applyImpulse(headImpulse, this.headBody.position);
-
-    // Track in activeRagdolls for cleanup
+    // Track for cleanup
     activeRagdolls.push(this);
-
-    // Cleanup old ragdolls if too many
     if (activeRagdolls.length > maxActiveRagdolls) {
-      const oldestRagdoll = activeRagdolls.shift();
-      if (oldestRagdoll && oldestRagdoll !== this) {
-        oldestRagdoll.cleanupRagdoll();
-      }
+      const oldest = activeRagdolls.shift();
+      if (oldest && oldest !== this) oldest.cleanupRagdoll();
     }
 
-    // Mark death time for cleanup
     this.deathTime = Date.now();
   }
 
